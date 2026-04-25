@@ -1,5 +1,5 @@
 [project]
-name = "chatgpt-image-mcp"
+name = "gpt-image-2-mcp"
 version = "0.1.0"
 description = "Local MCP server and CLI for generating ChatGPT images through a browser session."
 requires-python = ">=3.11"

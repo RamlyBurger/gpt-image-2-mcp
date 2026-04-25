@@ -113,7 +113,7 @@ wheels = [
 ]
 
 [[package]]
-name = "chatgpt-image-mcp"
+name = "gpt-image-2-mcp"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
