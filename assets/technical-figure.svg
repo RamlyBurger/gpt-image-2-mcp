@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="760" viewBox="0 0 1400 760" role="img" aria-labelledby="title desc">
+  <title id="title">Technical figure for GPT Image 2 MCP</title>
+  <desc id="desc">A paper-style technical figure showing request flow, backend selection, artifact persistence, and pseudocode.</desc>
+  <defs>
+    <marker id="arrow-black" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#222"/>
+    </marker>
+    <marker id="arrow-teal" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#168f96"/>
+    </marker>
+    <style>
+      .panel { fill: #ffffff; stroke: #232323; stroke-width: 1.4; }
+      .soft { fill: #eef8f8; stroke: #168f96; stroke-width: 1.2; }
+      .warn { fill: #fff0eb; stroke: #cf6f5e; stroke-width: 1.2; }
+      .muted { fill: #f5f5f3; stroke: #b9b9b2; stroke-width: 1; }
+      .h { font: 700 22px Georgia, 'Times New Roman', serif; fill: #1e1e1e; }
+      .sub { font: 600 17px Georgia, 'Times New Roman', serif; fill: #2a2a2a; }
+      .label { font: 15px Georgia, 'Times New Roman', serif; fill: #202020; }
+      .small { font: 13px Georgia, 'Times New Roman', serif; fill: #333; }
+      .mono { font: 13px Consolas, 'Courier New', monospace; fill: #222; }
+      .mono-small { font: 12px Consolas, 'Courier New', monospace; fill: #222; }
+    </style>
+  </defs>
+  <rect width="1400" height="760" fill="#fbfbf8"/>
+  <text x="48" y="48" class="h">Figure 1. GPT Image 2 MCP: request routing and artifact persistence</text>
+  <text x="48" y="78" class="label">A compact MCP server maps client prompts to image backends and returns filesystem-backed artifacts.</text>
+
+  <rect x="44" y="112" width="620" height="260" class="panel"/>
+  <text x="68" y="145" class="sub">(a) Request pipeline</text>
+  <g transform="translate(72 184)">
+    <rect x="0" y="0" width="128" height="64" rx="12" class="soft"/>
+    <text x="24" y="26" class="label">MCP client</text>
+    <text x="19" y="48" class="small">prompt, options</text>
+    <path d="M140 32 H214" stroke="#222" stroke-width="2" marker-end="url(#arrow-black)"/>
+    <rect x="226" y="0" width="148" height="64" rx="12" class="muted"/>
+    <text x="248" y="26" class="label">Tool schema</text>
+    <text x="254" y="48" class="small">Zod validation</text>
+    <path d="M386 32 H460" stroke="#222" stroke-width="2" marker-end="url(#arrow-black)"/>
+    <rect x="472" y="0" width="116" height="64" rx="12" class="soft"/>
+    <text x="496" y="26" class="label">Backend</text>
+    <text x="501" y="48" class="small">resolver</text>
+  </g>
+  <g transform="translate(72 286)">
+    <rect x="0" y="0" width="170" height="48" rx="10" class="warn"/>
+    <text x="18" y="29" class="label">generate_image()</text>
+    <path d="M184 24 H290" stroke="#168f96" stroke-width="2.2" marker-end="url(#arrow-teal)"/>
+    <rect x="304" y="0" width="126" height="48" rx="10" class="soft"/>
+    <text x="326" y="29" class="label">image files</text>
+    <path d="M444 24 H510" stroke="#168f96" stroke-width="2.2" marker-end="url(#arrow-teal)"/>
+    <rect x="522" y="0" width="92" height="48" rx="10" class="muted"/>
+    <text x="538" y="29" class="label">JSON</text>
+  </g>
+
+  <rect x="706" y="112" width="650" height="260" class="panel"/>
+  <text x="730" y="145" class="sub">(b) Backend selection policy</text>
+  <text x="730" y="184" class="label">mode in { api, chatgpt-web, auto }</text>
+  <line x1="730" y1="198" x2="1320" y2="198" stroke="#222"/>
+  <g transform="translate(738 226)">
+    <rect x="0" y="0" width="152" height="70" rx="10" class="soft"/>
+    <text x="52" y="28" class="label">api</text>
+    <text x="18" y="52" class="small">OpenAI API</text>
+    <rect x="216" y="0" width="176" height="70" rx="10" class="warn"/>
+    <text x="252" y="28" class="label">chatgpt-web</text>
+    <text x="237" y="52" class="small">signed-in website</text>
+    <rect x="468" y="0" width="138" height="70" rx="10" class="muted"/>
+    <text x="518" y="28" class="label">auto</text>
+    <text x="486" y="52" class="small">api, then fallback</text>
+    <path d="M154 35 H206" stroke="#222" stroke-width="1.8" marker-end="url(#arrow-black)"/>
+    <path d="M394 35 H458" stroke="#222" stroke-width="1.8" marker-end="url(#arrow-black)"/>
+  </g>
+  <text x="740" y="335" class="mono">select(mode) = api if mode == api</text>
+  <text x="740" y="356" class="mono">select(mode) = web if mode == chatgpt-web</text>
+
+  <rect x="44" y="410" width="620" height="284" class="panel"/>
+  <text x="68" y="443" class="sub">(c) Artifact model</text>
+  <g transform="translate(76 472)">
+    <rect x="0" y="0" width="198" height="164" rx="10" class="muted"/>
+    <text x="20" y="32" class="label">output_dir</text>
+    <text x="20" y="60" class="mono-small">20260427-143015-</text>
+    <text x="20" y="78" class="mono-small">cinematic-product-shot/</text>
+    <text x="20" y="112" class="mono-small">image-01.png</text>
+    <text x="20" y="132" class="mono-small">metadata.json</text>
+  </g>
+  <g transform="translate(342 470)">
+    <rect x="0" y="0" width="260" height="168" rx="10" class="soft"/>
+    <text x="18" y="30" class="label">structuredContent</text>
+    <text x="18" y="58" class="mono-small">{</text>
+    <text x="34" y="78" class="mono-small">backend: "api",</text>
+    <text x="34" y="98" class="mono-small">image_path: ".../image-01.png",</text>
+    <text x="34" y="118" class="mono-small">images: [...],</text>
+    <text x="34" y="138" class="mono-small">metadata: {...}</text>
+    <text x="18" y="158" class="mono-small">}</text>
+  </g>
+  <path d="M280 552 H330" stroke="#222" stroke-width="2" marker-end="url(#arrow-black)"/>
+
+  <rect x="706" y="410" width="650" height="284" class="panel"/>
+  <text x="730" y="443" class="sub">(d) Algorithm sketch</text>
+  <line x1="730" y1="462" x2="1322" y2="462" stroke="#222"/>
+  <text x="746" y="494" class="mono">Algorithm 1 GenerateImage(prompt, mode)</text>
+  <text x="746" y="522" class="mono-small">1: args  &lt;- validate(prompt, options)</text>
+  <text x="746" y="544" class="mono-small">2: b     &lt;- resolve_backend(mode, env)</text>
+  <text x="746" y="566" class="mono-small">3: y     &lt;- b.generate(args)</text>
+  <text x="746" y="588" class="mono-small">4: dir   &lt;- create_output_dir(prompt)</text>
+  <text x="746" y="610" class="mono-small">5: paths &lt;- write_images(y, dir)</text>
+  <text x="746" y="632" class="mono-small">6: write_metadata(dir, y.meta)</text>
+  <text x="746" y="654" class="mono-small">7: return { output_dir, image_path, images }</text>
+  <line x1="730" y1="670" x2="1322" y2="670" stroke="#222"/>
+</svg>

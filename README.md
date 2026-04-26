@@ -1,29 +1,20 @@
 # @ramlyburger/gpt-image-2-mcp
 
 <p align="center">
-  <img src="./assets/logo.png" alt="gpt-image-2-mcp logo" width="120" />
+  <img src="./assets/banner.png" alt="GPT Image 2 MCP banner showing prompts flowing through an MCP server into generated images" width="980" />
 </p>
 
-<p align="center">
-  Generate images from any MCP-compatible AI client through one small stdio server.
-</p>
+Turn any MCP-compatible AI client into an image generator. Send a normal prompt, choose a backend mode, and get real saved image files back.
+
+## At A Glance
+
+- Prompt in, saved images out.
+- No ChatGPT API key is required in `chatgpt-web` mode. You only need a ChatGPT account and a successful sign-in at [chatgpt.com](https://chatgpt.com/).
+- Direct OpenAI API mode is available when you set `OPENAI_API_KEY`.
+- Every result returns the exact `output_dir`, `image_path`, and image metadata.
 
 <p align="center">
-  <img src="./assets/hero.png" alt="Illustration of prompt cards flowing through a central image-generation server and turning into generated images" width="980" />
-</p>
-
-Use this when you want your MCP client to request images the same way it requests code or text: send a prompt, choose a mode, and get real saved image files back.
-
-## What This Gives You
-
-- one MCP server with a simple image-generation tool surface
-- official OpenAI API support through `gpt-image-2`
-- a ChatGPT website mode that does not require a ChatGPT API key
-- exact output directories and image paths in every saved result
-- a reusable local ChatGPT sign-in profile across restarts
-
-<p align="center">
-  <img src="./assets/figure-prompt-to-image.png" alt="Simple prompt-to-image figure showing prompt input branching into a generated image" width="720" />
+  <img src="./assets/front-flow.svg" alt="Simple three step diagram: ask for an image, run GPT Image 2 MCP, get saved files" width="980" />
 </p>
 
 ## Quick Start
@@ -44,11 +35,11 @@ Add the server to your MCP client:
 }
 ```
 
-This starts in `chatgpt-web` mode. In this mode you do not need a ChatGPT API key. You only need a ChatGPT account and a successful sign-in at [chatgpt.com](https://chatgpt.com/).
+That is enough for the ChatGPT website mode. The first run opens ChatGPT so you can sign in or complete verification. After that, the local profile can be reused across restarts.
 
-If you want direct API generation instead, set `OPENAI_API_KEY` and change `GPT_IMAGE_BACKEND` to `api`.
+For direct API generation, set `OPENAI_API_KEY` and change `GPT_IMAGE_BACKEND` to `api`.
 
-## Which Mode Should You Pick?
+## Pick A Mode
 
 | Mode | What you need | Best when | Notes |
 | --- | --- | --- | --- |
@@ -74,53 +65,31 @@ Use `conversation_mode="new"` or `conversation_mode="continue"` with the ChatGPT
 
 ## Technical Reference
 
-The remainder of this document is written as an implementation-oriented reference. If you only need setup, the sections above are enough.
+The section below is the implementation-oriented view.
 
-### 1. System Model
+<p align="center">
+  <img src="./assets/technical-figure.svg" alt="Paper-style architecture figure for GPT Image 2 MCP" width="980" />
+</p>
 
-The package exposes a TypeScript MCP server over stdio. The server validates tool inputs, resolves the backend, writes output artifacts to a per-user data directory, and returns both structured metadata and image content to the caller.
+### Abstract
 
-```mermaid
-flowchart LR
-    A["MCP client"] --> B["gpt-image-2-mcp<br/>stdio server"]
-    B --> C["Input validation<br/>Zod schemas"]
-    C --> D{"Backend selection"}
-    D --> E["OpenAI API mode"]
-    D --> F["ChatGPT website mode"]
-    E --> G["Saved image files<br/>metadata.json"]
-    F --> G
-```
+`gpt-image-2-mcp` is a small TypeScript MCP server that exposes image generation through a narrow tool contract. The server validates MCP tool input, resolves the requested backend, persists generated artifacts to disk, and returns structured metadata plus image content to the caller.
 
-### 2. Conceptual Flow
+### Method
 
-At a high level, the server receives a prompt-like request, materializes a backend-specific generation call, persists the generated images to disk, and reports the saved paths back to the MCP client.
+The implementation follows a five-stage pipeline:
 
-The implementation surface is intentionally narrow:
+1. parse and validate MCP tool input
+2. resolve the backend from `api`, `chatgpt-web`, or `auto`
+3. execute the selected image-generation path
+4. write generated images and `metadata.json` to a prompt-derived output directory
+5. return `output_dir`, `image_path`, `images`, and backend metadata
 
-1. parse MCP tool input
-2. choose the execution path
-3. generate image output
-4. persist image files and metadata
-5. return a structured result
+The `auto` mode attempts the API backend first and falls back to `chatgpt-web` only when the API backend is unavailable.
 
-### 3. Backend Selection Semantics
+### Artifact Model
 
-The backend registry contains two concrete execution targets:
-
-- `api`
-- `chatgpt-web`
-
-Selection behavior:
-
-- `api`: call the OpenAI API backend directly
-- `chatgpt-web`: use the local signed-in ChatGPT website session directly
-- `auto`: attempt the API backend first and fall back to `chatgpt-web` only when the API backend is unavailable
-
-This fallback behavior is implemented in the backend resolver rather than the README alone, so the operational semantics are stable across MCP clients.
-
-### 4. Output Persistence Model
-
-Each generation creates a prompt-derived output directory and writes numbered image files such as `image-01.png` plus `metadata.json`.
+Each generation creates one output directory. Images are written as numbered files such as `image-01.png`, and metadata is written beside them.
 
 Default output roots:
 
@@ -137,7 +106,7 @@ Operational notes:
 - image filenames are deterministic within one output directory: `image-01`, `image-02`, and so on
 - metadata is written as JSON alongside the image files
 
-### 5. ChatGPT Website Mode
+### ChatGPT Website Mode
 
 Run the server in ChatGPT website mode:
 
@@ -148,7 +117,7 @@ node dist/index.js
 
 When the server starts, it opens ChatGPT in Chrome or Edge. Sign in or complete verification there. Once the normal composer is visible, the session is ready for tool calls. No ChatGPT API key is required for this mode.
 
-The local ChatGPT sign-in profile is stored under the same per-user app data directory by default, so the login state can be reused across restarts. Override with:
+The local ChatGPT sign-in profile is stored under the same per-user app data directory by default. Override it with:
 
 ```powershell
 $env:CHATGPT_WEB_PROFILE_DIR = "C:\path\to\profile"
@@ -163,9 +132,7 @@ $env:CHATGPT_HIDE_WINDOW = "0"
 
 `CHATGPT_HIDE_WINDOW` defaults to enabled. The ChatGPT window stays visible for login or verification, then hides after `chatgpt.com` is ready. Use `0` if you want the window to remain visible after sign-in.
 
-If the MCP profile is still open from a previous session, startup stops before launching another Chrome instance against the same profile. This prevents extra startup tabs and avoids profile contention.
-
-### 6. API Mode
+### API Mode
 
 Run the server in direct API mode:
 
@@ -177,7 +144,7 @@ node dist/index.js
 
 This mode uses the configured OpenAI image model directly. By default the model is `gpt-image-2`, and the selected output format can be `png`, `jpeg`, or `webp`.
 
-### 7. Tool Contract Summary
+### Tool Contract
 
 `generate_image` returns a structured result with these important fields:
 
@@ -195,7 +162,7 @@ This mode uses the configured OpenAI image model directly. By default the model 
 
 `browser_visibility` controls the visibility of the ChatGPT window and can also start the ChatGPT session when requested.
 
-### 8. Local Development
+### Local Development
 
 The TypeScript MCP server is the only supported entry point.
 
@@ -214,13 +181,11 @@ npm run build
 npm run start
 ```
 
-### 9. Repository Notes
-
-This package is intentionally small:
+### Repository Notes
 
 - `src/index.ts` registers the MCP tools
 - `src/config.ts` resolves environment-driven configuration
 - `src/backends/` contains backend implementations and selection logic
 - `src/output.ts` is responsible for output-directory naming and file writes
 
-That separation is deliberate: the public MCP surface stays minimal while backend-specific complexity remains isolated in the backend layer.
+The public MCP surface stays intentionally small while backend-specific behavior remains isolated in the backend layer.
