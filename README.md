@@ -8,7 +8,28 @@ MCP server for generating images with selectable backends:
 
 The TypeScript MCP server is the main entry point. The Python browser daemon remains available as a legacy compatibility mode.
 
-## Setup
+## Install In An MCP Client
+
+After this package is published to npm, configure your MCP client to launch it with `npx`:
+
+```json
+{
+  "mcpServers": {
+    "gpt-image-2": {
+      "command": "npx",
+      "args": ["-y", "gpt-image-2-mcp"],
+      "env": {
+        "GPT_IMAGE_BACKEND": "chatgpt-web",
+        "CHATGPT_WEB_MODE": "direct"
+      }
+    }
+  }
+}
+```
+
+For API mode, add `OPENAI_API_KEY` and set `GPT_IMAGE_BACKEND` to `api`.
+
+## Local Development
 
 Install and build the TypeScript server:
 
@@ -27,7 +48,7 @@ $env:GPT_IMAGE_BACKEND = "api"
 node dist/index.js
 ```
 
-Generated images are always written to `output/chatgpt-images/`.
+Generated images are written to the per-user app data directory. Call `backend_status` to inspect the exact `output_root` for the current machine.
 
 ## ChatGPT Web Backend
 
@@ -40,7 +61,7 @@ node dist/index.js
 
 When the MCP server starts, it opens a real Chrome/Edge window at ChatGPT. Log in or complete verification there. Once the normal composer is visible, the TypeScript server moves the window off-screen and is ready for tool calls. No TypeScript server port is required.
 
-The browser profile is kept at `.chatgpt-image-mcp/ts-profile` by default, so ChatGPT login can be reused across MCP server restarts. Override with:
+The browser profile is kept under the same per-user app data directory by default, so ChatGPT login can be reused across MCP server restarts. Override with:
 
 ```powershell
 $env:CHATGPT_WEB_PROFILE_DIR = "C:\path\to\profile"
@@ -54,6 +75,18 @@ $env:CHATGPT_HIDE_WINDOW = "0"
 ```
 
 `CHATGPT_HIDE_WINDOW` defaults to enabled. Set it to `0` if you want the browser to stay visible after login.
+
+## Generated Files
+
+The server does not use a hardcoded user directory. By default it saves generated images under:
+
+```text
+Windows: %LOCALAPPDATA%\gpt-image-2-mcp\output\chatgpt-images
+macOS:   ~/Library/Application Support/gpt-image-2-mcp/output/chatgpt-images
+Linux:   ${XDG_DATA_HOME:-~/.local/share}/gpt-image-2-mcp/output/chatgpt-images
+```
+
+`backend_status` returns the exact `output_root` and each `generate_image` result returns the exact `output_dir` and `image_path`.
 
 ### Legacy Python Daemon Mode
 

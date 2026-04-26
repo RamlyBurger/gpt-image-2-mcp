@@ -8,9 +8,15 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
+    "prepack": "npm run build",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "start": "node dist/index.js"
   },
+  "files": [
+    "dist",
+    "README.md",
+    "mcp_config.example.json"
+  ],
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
     "openai": "^6.34.0",

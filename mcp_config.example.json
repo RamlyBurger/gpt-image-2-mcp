@@ -1,9 +1,10 @@
 {
   "mcpServers": {
     "GPT Image 2 API": {
-      "command": "node",
+      "command": "npx",
       "args": [
-        "C:\\Users\\ramly\\Desktop\\gpt image 2\\dist\\index.js"
+        "-y",
+        "gpt-image-2-mcp"
       ],
       "env": {
         "GPT_IMAGE_BACKEND": "api",
@@ -11,14 +12,14 @@
       }
     },
     "GPT Image 2 ChatGPT Web": {
-      "command": "node",
+      "command": "npx",
       "args": [
-        "C:\\Users\\ramly\\Desktop\\gpt image 2\\dist\\index.js"
+        "-y",
+        "gpt-image-2-mcp"
       ],
       "env": {
         "GPT_IMAGE_BACKEND": "chatgpt-web",
-        "CHATGPT_WEB_MODE": "direct",
-        "CHATGPT_WEB_PROFILE_DIR": "C:\\Users\\ramly\\Desktop\\gpt image 2\\.chatgpt-image-mcp\\ts-profile"
+        "CHATGPT_WEB_MODE": "direct"
       }
     }
   }

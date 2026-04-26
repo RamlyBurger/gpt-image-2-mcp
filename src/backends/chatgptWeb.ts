@@ -91,6 +91,7 @@ export class ChatGptWebBackend implements ImageBackend {
       message: directStatusMessage(session),
       details: {
         mode: "direct",
+        output_root: this.config.outputRoot,
         profile_dir: this.config.web.profileDir,
         hide_window: this.config.web.hideWindow,
         login_timeout_seconds: this.config.web.loginTimeoutSeconds,
@@ -122,6 +123,7 @@ export class ChatGptWebBackend implements ImageBackend {
         message: "Legacy Python browser daemon is reachable.",
         details: {
           mode: "daemon",
+          output_root: this.config.outputRoot,
           daemon_host: this.config.web.daemonHost,
           daemon_port: this.config.web.daemonPort,
           daemon,
@@ -135,6 +137,7 @@ export class ChatGptWebBackend implements ImageBackend {
         message: error instanceof Error ? error.message : String(error),
         details: {
           mode: "daemon",
+          output_root: this.config.outputRoot,
           daemon_host: this.config.web.daemonHost,
           daemon_port: this.config.web.daemonPort,
         },

@@ -1,5 +1,5 @@
+import os from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 
 import { z } from "zod";
 
@@ -21,8 +21,26 @@ export type ImageQuality = z.infer<typeof ImageQualitySchema>;
 export const WebModeSchema = z.enum(["direct", "daemon"]);
 export type WebMode = z.infer<typeof WebModeSchema>;
 
-const PROJECT_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-export const FIXED_OUTPUT_ROOT = path.join(PROJECT_ROOT, "output", "chatgpt-images");
+const APP_DIRECTORY_NAME = "gpt-image-2-mcp";
+
+export function defaultAppDataRoot(env: NodeJS.ProcessEnv = process.env, platform = process.platform): string {
+  const home = os.homedir();
+  if (platform === "win32") {
+    return path.join(env.LOCALAPPDATA || env.APPDATA || path.join(home, "AppData", "Local"), APP_DIRECTORY_NAME);
+  }
+  if (platform === "darwin") {
+    return path.join(home, "Library", "Application Support", APP_DIRECTORY_NAME);
+  }
+  return path.join(env.XDG_DATA_HOME || path.join(home, ".local", "share"), APP_DIRECTORY_NAME);
+}
+
+export function defaultOutputRoot(env: NodeJS.ProcessEnv = process.env, platform = process.platform): string {
+  return path.join(defaultAppDataRoot(env, platform), "output", "chatgpt-images");
+}
+
+export function defaultProfileDir(env: NodeJS.ProcessEnv = process.env, platform = process.platform): string {
+  return path.join(defaultAppDataRoot(env, platform), "profile");
+}
 
 export interface AppConfig {
   defaultBackend: BackendSelection;
@@ -84,7 +102,7 @@ function parseBoolean(value: string | undefined, fallback: boolean): boolean {
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
   return {
     defaultBackend: parseBackend(env.GPT_IMAGE_BACKEND),
-    outputRoot: FIXED_OUTPUT_ROOT,
+    outputRoot: defaultOutputRoot(env),
     api: {
       apiKey: env.OPENAI_API_KEY,
       model: env.GPT_IMAGE_MODEL || "gpt-image-2",
@@ -93,7 +111,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
       mode: parseWebMode(env.CHATGPT_WEB_MODE),
       daemonHost: env.CHATGPT_IMAGE_DAEMON_HOST || "127.0.0.1",
       daemonPort: parsePort(env.CHATGPT_IMAGE_DAEMON_PORT, 8765),
-      profileDir: path.resolve(env.CHATGPT_WEB_PROFILE_DIR || path.join(process.cwd(), ".chatgpt-image-mcp", "ts-profile")),
+      profileDir: path.resolve(env.CHATGPT_WEB_PROFILE_DIR || defaultProfileDir(env)),
       loginTimeoutSeconds: parsePositiveInt(env.CHATGPT_WEB_LOGIN_TIMEOUT_SECONDS, 900),
       hideWindow: parseBoolean(env.CHATGPT_HIDE_WINDOW, true),
     },
