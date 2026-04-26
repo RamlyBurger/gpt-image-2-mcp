@@ -4,7 +4,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "gpt-image-2-mcp"
+        "@ramlyburger/gpt-image-2-mcp"
       ],
       "env": {
         "GPT_IMAGE_BACKEND": "api",
@@ -15,7 +15,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "gpt-image-2-mcp"
+        "@ramlyburger/gpt-image-2-mcp"
       ],
       "env": {
         "GPT_IMAGE_BACKEND": "chatgpt-web"

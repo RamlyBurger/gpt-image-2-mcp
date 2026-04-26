@@ -1,4 +1,4 @@
-# gpt-image-2-mcp
+# @ramlyburger/gpt-image-2-mcp
 
 MCP server for generating images with selectable backends:
 
@@ -10,14 +10,14 @@ The TypeScript MCP server is the only supported entry point.
 
 ## Install In An MCP Client
 
-After this package is published to npm, configure your MCP client to launch it with `npx`:
+Install from npm by configuring your MCP client to launch the scoped package with `npx`:
 
 ```json
 {
   "mcpServers": {
     "gpt-image-2": {
       "command": "npx",
-      "args": ["-y", "gpt-image-2-mcp"],
+      "args": ["-y", "@ramlyburger/gpt-image-2-mcp"],
       "env": {
         "GPT_IMAGE_BACKEND": "chatgpt-web"
       }
