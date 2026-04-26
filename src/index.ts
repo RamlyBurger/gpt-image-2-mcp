@@ -132,6 +132,17 @@ async function main(): Promise<void> {
   const transport = new StdioServerTransport();
   await server.connect(transport);
   console.error(`gpt-image-2 MCP server running on stdio with default backend: ${config.defaultBackend}`);
+  if (config.defaultBackend === "chatgpt-web" && config.web.mode === "direct") {
+    console.error("Starting TypeScript ChatGPT web browser session. Complete login in the opened browser window.");
+    void backends["chatgpt-web"]
+      .start()
+      .then(() => {
+        console.error("TypeScript ChatGPT web browser session is ready. Tool calls can now generate images.");
+      })
+      .catch((error) => {
+        console.error("TypeScript ChatGPT web browser startup failed:", error);
+      });
+  }
 }
 
 main().catch((error) => {

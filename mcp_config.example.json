@@ -17,8 +17,8 @@
       ],
       "env": {
         "GPT_IMAGE_BACKEND": "chatgpt-web",
-        "CHATGPT_IMAGE_DAEMON_HOST": "127.0.0.1",
-        "CHATGPT_IMAGE_DAEMON_PORT": "8765"
+        "CHATGPT_WEB_MODE": "direct",
+        "CHATGPT_WEB_PROFILE_DIR": "C:\\Users\\ramly\\Desktop\\gpt image 2\\.chatgpt-image-mcp\\ts-profile"
       }
     }
   }
