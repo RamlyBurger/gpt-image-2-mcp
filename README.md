@@ -85,6 +85,14 @@ You can also control the running browser through the MCP tool:
 
 Use `browser_visibility` with `action` set to `show`, `hide`, `toggle`, or `status`. Set `start_browser` to `true` if you want the tool to open the ChatGPT browser when no browser session exists.
 
+## Windsurf Demo
+
+Recorded demo of the MCP running inside Windsurf:
+
+<video src="https://github.com/RamlyBurger/gpt-image-2-mcp/raw/main/assets/windsurf-demo.mp4" controls muted playsinline width="960"></video>
+
+If the video player does not render in your GitHub client, open [assets/windsurf-demo.mp4](./assets/windsurf-demo.mp4) directly.
+
 ## Generated Files
 
 The server does not use a hardcoded user directory. By default it saves generated images under:
