@@ -1,6 +1,6 @@
 # @ramlyburger/gpt-image-2-mcp
 
-[![Demo](./assets/demo.gif)](./assets/windsurf-demo.mp4)
+[![Demo](./assets/demo.gif)](./assets/demo.mp4)
 
 Generate images from any MCP-compatible AI client with a normal prompt.
 
