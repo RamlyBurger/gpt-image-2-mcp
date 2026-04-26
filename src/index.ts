@@ -32,6 +32,11 @@ const BackendStatusInput = z.object({
   backend: BackendSelectionSchema.optional().describe("Backend to inspect. Defaults to GPT_IMAGE_BACKEND or auto summary."),
 });
 
+const BrowserVisibilityInput = z.object({
+  action: z.enum(["show", "hide", "toggle", "status"]).default("status").describe("Browser visibility action for the ChatGPT web backend."),
+  start_browser: z.boolean().default(false).describe("Start the ChatGPT browser session if no browser is open."),
+});
+
 server.registerTool(
   "generate_image",
   {
@@ -94,6 +99,39 @@ server.registerTool(
       content: [{ type: "text", text: JSON.stringify(summary, null, 2) }],
       structuredContent: summary,
     };
+  },
+);
+
+server.registerTool(
+  "browser_visibility",
+  {
+    title: "Browser visibility",
+    description: "Show, hide, toggle, or inspect the ChatGPT web backend browser window.",
+    inputSchema: BrowserVisibilityInput,
+  },
+  async (rawArgs): Promise<CallToolResult> => {
+    const args = BrowserVisibilityInput.parse(rawArgs);
+    try {
+      const result = await backends["chatgpt-web"].browserVisibility({
+        action: args.action,
+        startBrowser: args.start_browser,
+      });
+      const structured = result as unknown as Record<string, unknown>;
+      return {
+        content: [{ type: "text", text: JSON.stringify(structured, null, 2) }],
+        structuredContent: structured,
+      };
+    } catch (error) {
+      return {
+        isError: true,
+        content: [
+          {
+            type: "text",
+            text: error instanceof Error ? error.message : String(error),
+          },
+        ],
+      };
+    }
   },
 );
 

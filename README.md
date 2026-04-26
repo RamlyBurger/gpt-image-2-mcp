@@ -74,7 +74,15 @@ $env:CHATGPT_WEB_LOGIN_TIMEOUT_SECONDS = "900"
 $env:CHATGPT_HIDE_WINDOW = "0"
 ```
 
-`CHATGPT_HIDE_WINDOW` defaults to enabled. Set it to `0` if you want the browser to stay visible after login.
+`CHATGPT_HIDE_WINDOW` defaults to enabled. The browser stays visible for login or verification, then hides after `chatgpt.com` shows either the normal ChatGPT composer page or the authenticated ChatGPT shell from a restored profile. Startup `about:blank` tabs are closed after the ChatGPT tab opens, and delayed blank tabs are cleaned up again during startup. Set it to `0` if you want the browser to stay visible after login.
+
+You can also control the running browser through the MCP tool:
+
+```json
+{ "action": "toggle" }
+```
+
+Use `browser_visibility` with `action` set to `show`, `hide`, `toggle`, or `status`. Set `start_browser` to `true` if you want the tool to open the ChatGPT browser when no browser session exists.
 
 ## Generated Files
 
@@ -111,6 +119,7 @@ node dist/index.js
 
 - `generate_image(prompt, backend?, n?, size?, quality?, output_format?, conversation_mode?, timeout_seconds?)`
 - `backend_status(backend?)`
+- `browser_visibility(action?, start_browser?)`
 
 Backend values are `api`, `chatgpt-web`, or `auto`.
 
