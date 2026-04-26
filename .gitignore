@@ -1,8 +1,11 @@
 .venv/
+node_modules/
+dist/
 .chatgpt-image-mcp/
 .playwright-cli/
 .playwright-mcp/
 output/
 __pycache__/
 *.pyc
+*.tsbuildinfo
 chatgpt-image.txt
