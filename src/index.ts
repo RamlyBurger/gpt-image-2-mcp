@@ -16,6 +16,7 @@ const server = new McpServer({
   name: "gpt-image-2-mcp",
   version: "0.2.0",
 });
+let shuttingDown = false;
 
 const GenerateImageInput = z.object({
   prompt: z.string().min(1).describe("Image prompt to send to the selected backend."),
@@ -169,6 +170,7 @@ async function imageToContent(image: GeneratedImage): Promise<ContentBlock> {
 async function main(): Promise<void> {
   const transport = new StdioServerTransport();
   await server.connect(transport);
+  installShutdownHandlers();
   console.error(`gpt-image-2 MCP server running on stdio with default backend: ${config.defaultBackend}`);
   if (config.defaultBackend === "chatgpt-web" && config.web.mode === "direct") {
     console.error("Starting TypeScript ChatGPT web browser session. Complete login in the opened browser window.");
@@ -181,6 +183,28 @@ async function main(): Promise<void> {
         console.error("TypeScript ChatGPT web browser startup failed:", error);
       });
   }
+}
+
+function installShutdownHandlers(): void {
+  const shutdown = (reason: string) => {
+    if (shuttingDown) {
+      return;
+    }
+    shuttingDown = true;
+    void backends["chatgpt-web"]
+      .close()
+      .catch((error) => {
+        console.error(`Failed to close ChatGPT browser during ${reason}:`, error);
+      })
+      .finally(() => {
+        process.exit(0);
+      });
+  };
+
+  process.once("SIGINT", () => shutdown("SIGINT"));
+  process.once("SIGTERM", () => shutdown("SIGTERM"));
+  process.stdin.once("close", () => shutdown("stdin close"));
+  process.stdin.once("end", () => shutdown("stdin end"));
 }
 
 main().catch((error) => {

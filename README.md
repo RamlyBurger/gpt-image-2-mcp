@@ -76,6 +76,8 @@ $env:CHATGPT_HIDE_WINDOW = "0"
 
 `CHATGPT_HIDE_WINDOW` defaults to enabled. The browser stays visible for login or verification, then hides after `chatgpt.com` shows either the normal ChatGPT composer page or the authenticated ChatGPT shell from a restored profile. Startup `about:blank` tabs are closed after the ChatGPT tab opens, and delayed blank tabs are cleaned up again during startup. Set it to `0` if you want the browser to stay visible after login.
 
+If the MCP profile is still open from a previous Codex session, startup stops before launching Chrome again. This avoids Chrome adding extra `about:blank` tabs to the already-open profile; close the old MCP Chrome window before starting a new automation session.
+
 You can also control the running browser through the MCP tool:
 
 ```json

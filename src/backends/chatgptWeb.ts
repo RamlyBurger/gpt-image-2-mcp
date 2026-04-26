@@ -1,6 +1,8 @@
 import { existsSync } from "node:fs";
 import { mkdir } from "node:fs/promises";
+import { execFile } from "node:child_process";
 import path from "node:path";
+import { promisify } from "node:util";
 
 import { chromium, type BrowserContext, type Page } from "patchright";
 
@@ -17,6 +19,7 @@ const VISIBLE_WINDOW_LEFT = 80;
 const VISIBLE_WINDOW_TOP = 80;
 const VISIBLE_WINDOW_WIDTH = 1280;
 const VISIBLE_WINDOW_HEIGHT = 900;
+const execFileAsync = promisify(execFile);
 
 interface PageState {
   title: string;
@@ -55,6 +58,11 @@ interface BrowserShowResult {
   method?: "window-bounds" | "bring-to-front";
   bounds?: Record<string, unknown>;
   error?: string;
+}
+
+interface BrowserProfileOwner {
+  pid: number;
+  processName: string;
 }
 
 export type BrowserVisibilityAction = "show" | "hide" | "toggle" | "status";
@@ -179,6 +187,12 @@ export class ChatGptWebBackend implements ImageBackend {
       maxImages: args.n,
       conversationMode: args.conversationMode,
     });
+  }
+
+  async close(): Promise<void> {
+    if (this.config.web.mode === "direct") {
+      await this.directSession.close();
+    }
   }
 
   async browserVisibility(options: BrowserVisibilityOptions): Promise<BrowserVisibilityStatus> {
@@ -483,6 +497,24 @@ class DirectChatGptBrowserSession {
     });
   }
 
+  async close(): Promise<void> {
+    const context = this.context;
+    this.context = undefined;
+    this.page = undefined;
+    this.chatReady = false;
+    this.hideReady = false;
+    this.hidden = false;
+    this.startup = undefined;
+    this.blankPageCleanupContext = undefined;
+    if (context) {
+      try {
+        await context.close();
+      } catch {
+        // Shutdown should be best-effort; the process may already be exiting.
+      }
+    }
+  }
+
   private async runExclusive<T>(fn: () => Promise<T>): Promise<T> {
     const run = this.lock.then(fn, fn);
     this.lock = run.then(
@@ -500,10 +532,15 @@ class DirectChatGptBrowserSession {
 
     if (!this.browserOpen) {
       await mkdir(this.config.web.profileDir, { recursive: true });
+      const profileOwner = await findBrowserProfileOwner(this.config.web.profileDir);
+      if (profileOwner) {
+        throw profileAlreadyOpenError(this.config.web.profileDir, profileOwner);
+      }
       const commonOptions = {
         headless: false,
         acceptDownloads: true,
         viewport: null,
+        ignoreDefaultArgs: ["about:blank"],
       };
 
       try {
@@ -511,11 +548,23 @@ class DirectChatGptBrowserSession {
           ...commonOptions,
           channel: "chrome",
         });
-      } catch {
-        this.context = await chromium.launchPersistentContext(this.config.web.profileDir, {
-          ...commonOptions,
-          executablePath: findChrome(),
-        });
+      } catch (error) {
+        if (isExistingBrowserSessionError(error)) {
+          const owner = await findBrowserProfileOwner(this.config.web.profileDir);
+          throw profileAlreadyOpenError(this.config.web.profileDir, owner);
+        }
+        try {
+          this.context = await chromium.launchPersistentContext(this.config.web.profileDir, {
+            ...commonOptions,
+            executablePath: findChrome(),
+          });
+        } catch (fallbackError) {
+          if (isExistingBrowserSessionError(fallbackError)) {
+            const owner = await findBrowserProfileOwner(this.config.web.profileDir);
+            throw profileAlreadyOpenError(this.config.web.profileDir, owner);
+          }
+          throw fallbackError;
+        }
       }
 
       this.page = (await selectStartupPage(this.context)) || (await this.context.newPage());
@@ -737,6 +786,59 @@ function findChrome(): string {
     }
   }
   throw new BackendUnavailableError("Chrome or Edge executable not found. Set CHROME_PATH to the browser executable.", "chatgpt-web");
+}
+
+async function findBrowserProfileOwner(profileDir: string): Promise<BrowserProfileOwner | undefined> {
+  if (process.platform !== "win32") {
+    return undefined;
+  }
+
+  const script = `
+$ErrorActionPreference = 'Stop'
+$profileDir = [System.IO.Path]::GetFullPath($env:CHATGPT_WEB_PROFILE_OWNER_DIR).TrimEnd('\\').ToLowerInvariant()
+$owner = Get-CimInstance Win32_Process -Filter "name = 'chrome.exe' OR name = 'msedge.exe'" |
+  Where-Object { $_.CommandLine -and $_.CommandLine.ToLowerInvariant().Contains($profileDir) } |
+  Sort-Object @{ Expression = { if ($_.CommandLine -match '\\s--type=') { 1 } else { 0 } } }, ProcessId |
+  Select-Object -First 1 @{ Name = 'pid'; Expression = { $_.ProcessId } }, @{ Name = 'processName'; Expression = { $_.Name } }
+if ($owner) { $owner | ConvertTo-Json -Compress }
+`;
+
+  try {
+    const { stdout } = await execFileAsync(
+      "powershell.exe",
+      ["-NoProfile", "-NonInteractive", "-Command", script],
+      {
+        encoding: "utf8",
+        env: {
+          ...process.env,
+          CHATGPT_WEB_PROFILE_OWNER_DIR: profileDir,
+        },
+        timeout: 5000,
+        windowsHide: true,
+      },
+    );
+    const trimmed = stdout.trim();
+    if (!trimmed) {
+      return undefined;
+    }
+    const parsed = JSON.parse(trimmed) as Partial<BrowserProfileOwner>;
+    return typeof parsed.pid === "number" && typeof parsed.processName === "string" ? { pid: parsed.pid, processName: parsed.processName } : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function profileAlreadyOpenError(profileDir: string, owner?: BrowserProfileOwner): BackendUnavailableError {
+  const ownerText = owner ? `${owner.processName} PID ${owner.pid}` : "another Chrome or Edge process";
+  return new BackendUnavailableError(
+    `The ChatGPT browser profile is already open in ${ownerText}. The MCP did not launch another browser because Chrome would add extra about:blank tabs to the existing profile. Close the existing MCP Chrome window, then restart Codex or call the MCP again. Profile: ${profileDir}`,
+    "chatgpt-web",
+  );
+}
+
+function isExistingBrowserSessionError(error: unknown): boolean {
+  const text = error instanceof Error ? error.message : String(error);
+  return /Opening in existing browser session/i.test(text);
 }
 
 function isChatGptUrl(value: string): boolean {
