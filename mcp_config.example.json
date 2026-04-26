@@ -18,8 +18,7 @@
         "gpt-image-2-mcp"
       ],
       "env": {
-        "GPT_IMAGE_BACKEND": "chatgpt-web",
-        "CHATGPT_WEB_MODE": "direct"
+        "GPT_IMAGE_BACKEND": "chatgpt-web"
       }
     }
   }

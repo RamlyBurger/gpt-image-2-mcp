@@ -18,9 +18,6 @@ export type OutputFormat = z.infer<typeof OutputFormatSchema>;
 export const ImageQualitySchema = z.enum(["low", "medium", "high", "auto"]);
 export type ImageQuality = z.infer<typeof ImageQualitySchema>;
 
-export const WebModeSchema = z.enum(["direct", "daemon"]);
-export type WebMode = z.infer<typeof WebModeSchema>;
-
 const APP_DIRECTORY_NAME = "gpt-image-2-mcp";
 
 export function defaultAppDataRoot(env: NodeJS.ProcessEnv = process.env, platform = process.platform): string {
@@ -50,9 +47,6 @@ export interface AppConfig {
     model: string;
   };
   web: {
-    mode: WebMode;
-    daemonHost: string;
-    daemonPort: number;
     profileDir: string;
     loginTimeoutSeconds: number;
     hideWindow: boolean;
@@ -62,19 +56,6 @@ export interface AppConfig {
 function parseBackend(value: string | undefined): BackendSelection {
   const parsed = BackendSelectionSchema.safeParse(value || "api");
   return parsed.success ? parsed.data : "api";
-}
-
-function parsePort(value: string | undefined, fallback: number): number {
-  if (!value) {
-    return fallback;
-  }
-  const parsed = Number.parseInt(value, 10);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
-}
-
-function parseWebMode(value: string | undefined): WebMode {
-  const parsed = WebModeSchema.safeParse(value || "direct");
-  return parsed.success ? parsed.data : "direct";
 }
 
 function parsePositiveInt(value: string | undefined, fallback: number): number {
@@ -108,9 +89,6 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
       model: env.GPT_IMAGE_MODEL || "gpt-image-2",
     },
     web: {
-      mode: parseWebMode(env.CHATGPT_WEB_MODE),
-      daemonHost: env.CHATGPT_IMAGE_DAEMON_HOST || "127.0.0.1",
-      daemonPort: parsePort(env.CHATGPT_IMAGE_DAEMON_PORT, 8765),
       profileDir: path.resolve(env.CHATGPT_WEB_PROFILE_DIR || defaultProfileDir(env)),
       loginTimeoutSeconds: parsePositiveInt(env.CHATGPT_WEB_LOGIN_TIMEOUT_SECONDS, 900),
       hideWindow: parseBoolean(env.CHATGPT_HIDE_WINDOW, true),

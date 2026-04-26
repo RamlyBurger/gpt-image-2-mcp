@@ -172,7 +172,7 @@ async function main(): Promise<void> {
   await server.connect(transport);
   installShutdownHandlers();
   console.error(`gpt-image-2 MCP server running on stdio with default backend: ${config.defaultBackend}`);
-  if (config.defaultBackend === "chatgpt-web" && config.web.mode === "direct") {
+  if (config.defaultBackend === "chatgpt-web") {
     console.error("Starting TypeScript ChatGPT web browser session. Complete login in the opened browser window.");
     void backends["chatgpt-web"]
       .start()

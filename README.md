@@ -6,7 +6,7 @@ MCP server for generating images with selectable backends:
 - `chatgpt-web`: TypeScript ChatGPT browser automation through Patchright
 - `auto`: try the API backend first, then fall back to the web backend only when the API backend is unavailable
 
-The TypeScript MCP server is the main entry point. The Python browser daemon remains available as a legacy compatibility mode.
+The TypeScript MCP server is the only supported entry point.
 
 ## Install In An MCP Client
 
@@ -19,8 +19,7 @@ After this package is published to npm, configure your MCP client to launch it w
       "command": "npx",
       "args": ["-y", "gpt-image-2-mcp"],
       "env": {
-        "GPT_IMAGE_BACKEND": "chatgpt-web",
-        "CHATGPT_WEB_MODE": "direct"
+        "GPT_IMAGE_BACKEND": "chatgpt-web"
       }
     }
   }
@@ -98,25 +97,6 @@ Linux:   ${XDG_DATA_HOME:-~/.local/share}/gpt-image-2-mcp/output/chatgpt-images
 
 `backend_status` returns the exact `output_root` and each `generate_image` result returns the exact `output_dir` and `image_path`.
 
-### Legacy Python Daemon Mode
-
-If you still want the old two-process Python daemon path, install Python dependencies and set daemon mode:
-
-```powershell
-uv sync
-uv run python chatgpt_image.py browser-daemon
-```
-
-Then run the TypeScript MCP server with:
-
-```powershell
-$env:CHATGPT_WEB_MODE = "daemon"
-$env:GPT_IMAGE_BACKEND = "chatgpt-web"
-$env:CHATGPT_IMAGE_DAEMON_HOST = "127.0.0.1"
-$env:CHATGPT_IMAGE_DAEMON_PORT = "8765"
-node dist/index.js
-```
-
 ## Tools
 
 - `generate_image(prompt, backend?, n?, size?, quality?, output_format?, conversation_mode?, timeout_seconds?)`
@@ -126,13 +106,3 @@ node dist/index.js
 Backend values are `api`, `chatgpt-web`, or `auto`.
 
 Use `conversation_mode="new"` or `conversation_mode="continue"` with the ChatGPT web backend.
-
-## Legacy Python MCP Server
-
-The previous Python MCP server still exists:
-
-```powershell
-uv run python chatgpt_image.py serve-mcp --transport streamable-http --port 8005
-```
-
-For new installs, prefer the TypeScript server because it supports both backend choices through one MCP surface.
