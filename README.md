@@ -6,18 +6,18 @@
 
 Turn any MCP-compatible AI client into an image generator. Send a normal prompt, choose a backend mode, and get real saved image files back.
 
-## At A Glance
+## 🖼️ What It Does
 
-- Prompt in, saved images out.
-- No ChatGPT API key is required in `chatgpt-web` mode. You only need a ChatGPT account and a successful sign-in at [chatgpt.com](https://chatgpt.com/).
-- Direct OpenAI API mode is available when you set `OPENAI_API_KEY`.
-- Every result returns the exact `output_dir`, `image_path`, and image metadata.
+- ✍️ **Prompt in:** ask for an image from your MCP client.
+- ⚙️ **MCP server runs:** `gpt-image-2-mcp` handles the image request.
+- 💾 **Files out:** every result includes `output_dir`, `image_path`, and metadata.
+- 🔐 **No ChatGPT API key needed** in `chatgpt-web` mode. You only need a ChatGPT account and a successful sign-in at [chatgpt.com](https://chatgpt.com/).
 
 <p align="center">
-  <img src="./assets/front-flow.svg" alt="Simple three step diagram: ask for an image, run GPT Image 2 MCP, get saved files" width="980" />
+  <img src="./assets/quick-flow.png" alt="Beginner-friendly flow from prompt to GPT Image 2 MCP to saved images" width="980" />
 </p>
 
-## Quick Start
+## 🚀 Quick Start
 
 Add the server to your MCP client:
 
@@ -39,7 +39,7 @@ That is enough for the ChatGPT website mode. The first run opens ChatGPT so you 
 
 For direct API generation, set `OPENAI_API_KEY` and change `GPT_IMAGE_BACKEND` to `api`.
 
-## Pick A Mode
+## 🧭 Pick A Mode
 
 | Mode | What you need | Best when | Notes |
 | --- | --- | --- | --- |
@@ -47,13 +47,13 @@ For direct API generation, set `OPENAI_API_KEY` and change `GPT_IMAGE_BACKEND` t
 | `api` | `OPENAI_API_KEY` | You want the direct API path | Uses `gpt-image-2` |
 | `auto` | Preferably an API key; otherwise a usable ChatGPT website session | You want API first with fallback behavior | Tries API first, then falls back only when the API backend is unavailable |
 
-## Demo
+## 🎬 Demo
 
 [![Demo](./assets/demo.gif)](./assets/demo.mp4)
 
 Click the GIF to open the full MP4.
 
-## Tool Surface
+## 🧰 Tool Surface
 
 - `generate_image(prompt, backend?, n?, size?, quality?, output_format?, conversation_mode?, timeout_seconds?)`
 - `backend_status(backend?)`
@@ -63,12 +63,25 @@ Backend values are `api`, `chatgpt-web`, or `auto`.
 
 Use `conversation_mode="new"` or `conversation_mode="continue"` with the ChatGPT website mode.
 
-## Technical Reference
+## 📄 Technical Reference
 
 The section below is the implementation-oriented view.
 
+### Figure 1. System Model
+
+```mermaid
+flowchart LR
+    A["MCP client"] --> B["gpt-image-2-mcp<br/>stdio server"]
+    B --> C["Input validation<br/>Zod schemas"]
+    C --> D{"Backend selection"}
+    D --> E["OpenAI API mode"]
+    D --> F["ChatGPT website mode"]
+    E --> G["Saved image files<br/>metadata.json"]
+    F --> G
+```
+
 <p align="center">
-  <img src="./assets/technical-figure.svg" alt="Paper-style architecture figure for GPT Image 2 MCP" width="980" />
+  <img src="./assets/technical-figure.png" alt="Academic paper-style architecture figure for GPT Image 2 MCP" width="980" />
 </p>
 
 ### Abstract
