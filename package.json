@@ -1,0 +1,26 @@
+{
+  "name": "gpt-image-2-mcp",
+  "version": "0.2.0",
+  "description": "MCP server for GPT Image 2 with selectable OpenAI API and ChatGPT web backends.",
+  "type": "module",
+  "bin": {
+    "gpt-image-2-mcp": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "openai": "^6.34.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.3",
+    "typescript": "^6.0.3"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

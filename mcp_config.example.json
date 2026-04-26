@@ -1,21 +1,25 @@
 {
   "mcpServers": {
-    "ChatGPT Images 2.0": {
-      "command": "uv",
+    "GPT Image 2 API": {
+      "command": "node",
       "args": [
-        "run",
-        "--directory",
-        "C:\\Users\\ramly\\Desktop\\gpt image 2",
-        "python",
-        "chatgpt_image.py",
-        "serve-mcp",
-        "--transport",
-        "stdio",
-        "--daemon-host",
-        "127.0.0.1",
-        "--daemon-port",
-        "8765"
-      ]
+        "C:\\Users\\ramly\\Desktop\\gpt image 2\\dist\\index.js"
+      ],
+      "env": {
+        "GPT_IMAGE_BACKEND": "api",
+        "OPENAI_API_KEY": "YOUR_OPENAI_API_KEY"
+      }
+    },
+    "GPT Image 2 ChatGPT Web": {
+      "command": "node",
+      "args": [
+        "C:\\Users\\ramly\\Desktop\\gpt image 2\\dist\\index.js"
+      ],
+      "env": {
+        "GPT_IMAGE_BACKEND": "chatgpt-web",
+        "CHATGPT_IMAGE_DAEMON_HOST": "127.0.0.1",
+        "CHATGPT_IMAGE_DAEMON_PORT": "8765"
+      }
     }
   }
 }
