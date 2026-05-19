@@ -4,15 +4,15 @@
   <img src="./assets/banner.png" alt="GPT Image 2 MCP banner showing prompts flowing through an MCP server into generated images" width="980" />
 </p>
 
+Turn any MCP-compatible AI client into an image generator. Send a normal prompt, choose a backend mode, and get real saved image files back.
+
+## Popularity
+
 <p align="center">
-  <a href="https://www.pulsemcp.com/servers/ramlyburger-gpt-image-2">
-    <img src="./assets/pulsemcp-popularity.png" alt="Pulse MCP popularity ranking for GPT Image 2" width="980" />
-  </a>
-  <br />
-  <a href="https://www.pulsemcp.com/servers/ramlyburger-gpt-image-2">Popularity</a>
+  <img src="./assets/pulsemcp-popularity.png" alt="Pulse MCP popularity ranking for GPT Image 2" width="980" />
 </p>
 
-Turn any MCP-compatible AI client into an image generator. Send a normal prompt, choose a backend mode, and get real saved image files back.
+PulseMCP: [https://www.pulsemcp.com/servers/ramlyburger-gpt-image-2](https://www.pulsemcp.com/servers/ramlyburger-gpt-image-2)
 
 ## 🖼️ What It Does
 
