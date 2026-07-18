@@ -1,6 +1,14 @@
 # @ramlyburger/gpt-image-2-mcp
 
 <p align="center">
+  <a href="https://www.npmjs.com/package/@ramlyburger/gpt-image-2-mcp"><img src="https://img.shields.io/npm/v/@ramlyburger/gpt-image-2-mcp?logo=npm&label=npm" alt="npm version" /></a>
+  <a href="https://www.npmjs.com/package/@ramlyburger/gpt-image-2-mcp"><img src="https://img.shields.io/npm/dm/@ramlyburger/gpt-image-2-mcp?logo=npm&label=downloads" alt="npm downloads" /></a>
+  <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/Node.js-%3E%3D20-339933?logo=nodedotjs&logoColor=white" alt="Node.js 20 or newer" /></a>
+  <a href="https://modelcontextprotocol.io/"><img src="https://img.shields.io/badge/MCP-server-6f42c1" alt="Model Context Protocol server" /></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license" /></a>
+</p>
+
+<p align="center">
   <img src="./assets/banner.png" alt="GPT Image 2 MCP banner showing prompts flowing through an MCP server into generated images" width="980" />
 </p>
 
